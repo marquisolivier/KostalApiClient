@@ -25,6 +25,8 @@ namespace KostalApiClient.Api
         public ProcessDataEndpoint ProcessData { get; }
         public ModulesEndpoint Modules { get; }
         public SettingsEndpoint Settings { get; }
+        public SystemEndpoint System { get; }
+        
 
         /// <summary>
         /// Start point of the API. Create an Session object, from which you can reach all the API endpoints under Auth, Events, Info, LogData, ProcessData, Modules and Settings properties. You can login or not, but keep in mind that some of endpoints requires authenfication.
@@ -41,6 +43,7 @@ namespace KostalApiClient.Api
             ProcessData = new ProcessDataEndpoint(_client);
             Events = new EventsEndpoint(_client);
             Settings = new SettingsEndpoint(_client);
+            System = new SystemEndpoint(_client);
         }
 
         /// <summary>

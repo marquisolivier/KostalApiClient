@@ -18,7 +18,7 @@ namespace KostalApiClient.Sample
         {
             try
             {
-                Session session = new ( "{YOUR_HOST}");
+                Session session = new ( "192.168.1.56");
                 await Test(session);
             }
             catch (Exception e)
@@ -34,10 +34,10 @@ namespace KostalApiClient.Sample
             Console.WriteLine($"Session to : {infos.Hostname} - {infos.Name}. Api version : {infos.ApiVersion}. Software version : {infos.SoftwareVersion}");
 
             // Log into device
-            await session.Login("{YOUR_PASSWORD}");
+            await session.Login("GaT4cDfX4uAxSn8B8MGwt8tu");
             Me me = await session.Auth.GetMe();
             Console.WriteLine($"User : {me.Role}. Authenticated : {me.Authenticated}.");
-
+            await session.System.Reboot();
             // Get log datas
             LogDatas logDatas = await session.LogData.GetLogData(DateTime.Today, DateTime.Today);
             Console.WriteLine("Datas : " + logDatas.Datas.Count);
