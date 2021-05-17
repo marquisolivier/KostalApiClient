@@ -30,7 +30,7 @@ jobs:
 
       # Install dependencies          
       - name: Install dependencies
-        run: dotnet restore KostalApiClient.csproj      
+        run: dotnet restore /src/KostalApiClient.csproj      
 
       - name: Publish
         run: | # | character makes the "run" property multi-line, so we can put multiple commands in the same step
