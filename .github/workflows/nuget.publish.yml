@@ -35,8 +35,8 @@ jobs:
       - name: Publish
         run: | # | character makes the "run" property multi-line, so we can put multiple commands in the same step
           mkdir __out
-          dotnet pack KostalApiClient.csproj -c Release -o __out --no-restore
-          dotnet nuget push "./__out/KostalApiClient.1.0.1.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_TOKEN}}
+          dotnet pack KostalApiClient.csproj -c Release -o __out --no-restore -p:PackageVersion=1.0.1
+          dotnet nuget push "./__out/*.nupkg" --skip-duplicate --no-symbols true --api-key ${{secrets.NUGET_TOKEN}}
           rm -rf __out
           
 
