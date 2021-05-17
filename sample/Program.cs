@@ -37,7 +37,7 @@ namespace KostalApiClient.Sample
             await session.Login(your_password);
             Me me = await session.Auth.GetMe();
             Console.WriteLine($"User : {me.Role}. Authenticated : {me.Authenticated}.");
-            await session.System.Reboot();
+
             // Get log datas
             LogDatas logDatas = await session.LogData.GetLogData(DateTime.Today, DateTime.Today);
             Console.WriteLine("Datas : " + logDatas.Datas.Count);
@@ -68,6 +68,19 @@ namespace KostalApiClient.Sample
                 Console.WriteLine("");
                 await Task.Delay(1000);
             }
+            List<ProcessDataIdentifier> filter = new List<ProcessDataIdentifier>();
+            filter.Add(new ProcessDataIdentifier() { Moduleid = "devices:local", ProcessDataIds = new List<string> { "Dc_P", "DigitalIn", "HomeOwn_P", "Home_P", "HomeBat_P", "HomeGrid_P", "HomePv_P", "Grid_P", "Inverter:State", "LimitEvuAbs", "EM_State" } });
+            for (int i = 1; i <= 3; i++)
+            {
+                ProcessDataIdentifier device = new ProcessDataIdentifier()
+                {
+                    Moduleid = @$"devices:local:pv{i}",
+                    ProcessDataIds = new List<string> { "I", "P", "U" },
+                };
+                filter.Add(device);
+            }
+
+            List<ProcessModuleData> processModuleDatasFiltered = await session.ProcessData.GetProcessDataIdentifiersFilter(filter);
 
             // Logout
             await session.Auth.Logout();

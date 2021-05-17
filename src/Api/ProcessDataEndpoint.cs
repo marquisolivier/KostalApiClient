@@ -125,5 +125,23 @@ namespace KostalApiClient.Api
             RestRequest request = new($"/processdata/{moduleId}/{processDatasIds.Aggregate((i, j) => i + "," + j)}") {RequestFormat = DataFormat.Json};
             return await _client.GetAsync<List<ProcessModuleData>>(request);
         }
+
+        /// <summary>
+        /// Returns specified process-data value of a module
+        /// </summary>
+        /// <param name="moduleId">Module id</param>
+        /// <param name="processDatasIds">List of process data ids</param>
+        /// <returns></returns>
+        public async Task<List<ProcessModuleData>> GetProcessDataIdentifiersFilter(List<ProcessDataIdentifier> filters)
+        {
+            if (filters == null || !filters.Any())
+                throw new ArgumentException($"{nameof(filters)} can't be null or empty.");
+
+            _client.CheckAuthentication();
+
+            RestRequest request = new($"/processdata") { RequestFormat = DataFormat.Json };
+            request.AddJsonBody(filters);
+            return await _client.PostAsync<List<ProcessModuleData>>(request);
+        }
     }
 }
