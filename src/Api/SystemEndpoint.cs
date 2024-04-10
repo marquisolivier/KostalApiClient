@@ -3,24 +3,17 @@ using RestSharp;
 
 namespace KostalApiClient.Api
 {
-    public class SystemEndpoint
-    {      
-        private readonly KostalRestClient _client;
-
-        public SystemEndpoint(KostalRestClient client)
-        {
-            _client = client;
-        }
-
+    public class SystemEndpoint(KostalRestClient client)
+    {
         /// <summary>
         /// Returns information about the API
         /// </summary>
         /// <returns></returns>
         public async Task Reboot()
         {
-            _client.CheckAuthentication();
+            client.CheckAuthentication();
             RestRequest request = new("/system/reboot") {RequestFormat = DataFormat.Json};
-            await _client.ExecutePostAsync(request);
+            await client.ExecutePostAsync(request);
         }
     }
 }

@@ -4,15 +4,8 @@ using RestSharp;
 
 namespace KostalApiClient.Api
 {
-    public class InfoEndpoint
-    {      
-        private readonly KostalRestClient _client;
-
-        public InfoEndpoint(KostalRestClient client)
-        {
-            _client = client;
-        }
-
+    public class InfoEndpoint(KostalRestClient client)
+    {
         /// <summary>
         /// Returns information about the API
         /// </summary>
@@ -20,7 +13,7 @@ namespace KostalApiClient.Api
         public async Task<InfoVersion> GetVersion()
         {
             RestRequest request = new("/info/version") {RequestFormat = DataFormat.Json};
-            return await _client.GetAsync<InfoVersion>(request);
+            return await client.GetAsync<InfoVersion>(request);
         }
     }
 }

@@ -3,9 +3,8 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using RestSharp;
-using RestSharp.Deserializers;
-using RestSharp.Serializers.NewtonsoftJson;
 
 namespace KostalApiClient.Api
 {
@@ -29,13 +28,12 @@ namespace KostalApiClient.Api
         
 
         /// <summary>
-        /// Start point of the API. Create an Session object, from which you can reach all the API endpoints under Auth, Events, Info, LogData, ProcessData, Modules and Settings properties. You can login or not, but keep in mind that some of endpoints requires authenfication.
+        /// Start point of the API. Create a session object, from which you can reach all the API endpoints under Auth, Events, Info, LogData, ProcessData, Modules and Settings properties. You can login or not, but keep in mind that some of endpoints requires authenfication.
         /// </summary>
         /// <param name="host"></param>
         public Session(string host)
         {
             _client = new KostalRestClient($"http://{host}/api/v1");
-            _client.UseNewtonsoftJson();
             LogData = new LogDataEndpoint(_client);
             Auth = new AuthEndpoint(_client);
             Modules = new ModulesEndpoint(_client);
@@ -56,7 +54,7 @@ namespace KostalApiClient.Api
             string nonce = Base64Encode(RandomString(12));
             AuthStartData authStartData = await AuthStart(nonce);
             AuthFinishData authFinishData = await AuthFinish(authStartData, nonce, password);
-            _sessionId = CreateSesssion(authFinishData);
+            _sessionId = CreateSession(authFinishData);
             if (!string.IsNullOrEmpty(_sessionId))
             {
                 _client.IsAuthenticated = true;
@@ -104,14 +102,13 @@ namespace KostalApiClient.Api
                 key = pbkdf2.GetBytes(32);
             }
 
-            byte[] clientKey = HashHmac(key, Encoding.UTF8.GetBytes("Client Key"));
-            byte[] serverKey = HashHmac(key, Encoding.UTF8.GetBytes("Server Key"));
+            byte[] clientKey = HashHmac(key, "Client Key"u8.ToArray());
+            byte[] serverKey = HashHmac(key, "Server Key"u8.ToArray());
             byte[] clientKeyHash = SHA256.HashData(clientKey);
 
             string authString = $"n=user,r={nonce},r={authStartData.Nonce},s={authStartData.Salt},i={authStartData.Rounds},c=biws,r={authStartData.Nonce}";
 
             byte[] clientAuthHash = HashHmac(clientKeyHash, Encoding.UTF8.GetBytes(authString));
-            byte[] serverAuthHash = HashHmac(serverKey, Encoding.UTF8.GetBytes(authString));
 
             string authProof = Convert.ToBase64String(clientKey.Zip(clientAuthHash).Select(valueTuple => Convert.ToByte(valueTuple.First ^ valueTuple.Second)).ToArray());
             RestRequest authFinishRequest = new(AuthFinishEndpoint) {RequestFormat = DataFormat.Json};
@@ -124,9 +121,9 @@ namespace KostalApiClient.Api
             return authFinishData;
         }
 
-        private string CreateSesssion(AuthFinishData authFinishData)
+        private string CreateSession(AuthFinishData authFinishData)
         {
-            byte[] protocolKey = HashHmac(authFinishData.ClientKeyHash, Encoding.UTF8.GetBytes("Session Key").Concat( Encoding.UTF8.GetBytes(authFinishData.AuthString)).Concat(authFinishData.ClientKey).ToArray());
+            byte[] protocolKey = HashHmac(authFinishData.ClientKeyHash, "Session Key"u8.ToArray().Concat( Encoding.UTF8.GetBytes(authFinishData.AuthString)).Concat(authFinishData.ClientKey).ToArray());
             // Get bytes of plaintext string
             byte[] plainBytes = Encoding.UTF8.GetBytes(authFinishData.Token);
     
@@ -150,33 +147,33 @@ namespace KostalApiClient.Api
             RandomNumberGenerator.Fill(nonce);
 
             // Encrypt
-            using AesGcm aes = new(protocolKey);
+            using AesGcm aes = new(protocolKey, 16);
             aes.Encrypt(nonce, plainBytes.AsSpan(), cipherBytes, tag);
 
             RestRequest createSessionRequest = new(AuthCreateSessionEndpoint) {RequestFormat = DataFormat.Json};
             createSessionRequest.AddJsonBody(new { transactionId = authFinishData.TransactionId, iv = Convert.ToBase64String(nonce.ToArray()), tag = Convert.ToBase64String(tag.ToArray()), payload = Convert.ToBase64String(encryptedData.ToArray()) }); // uses JsonSerializer
-            IRestResponse<SessionData> createSessionResponse = _client.Post<SessionData>(createSessionRequest);
+            RestResponse<SessionData> createSessionResponse = _client.ExecutePost<SessionData>(createSessionRequest);
             return createSessionResponse.IsSuccessful ? createSessionResponse.Data.SessionId : null;
         }
 
 
         private class AuthStartData  
         {
-            [DeserializeAs(Name = "rounds")]
+            [JsonProperty("rounds")]
             public int Rounds { get; set; } 
-            [DeserializeAs(Name = "salt")]
+            [JsonProperty("salt")]
             public string Salt { get; set; } 
-            [DeserializeAs(Name = "transactionId")]
+            [JsonProperty("transactionId")]
             public string TransactionId { get; set; } 
-            [DeserializeAs(Name = "nonce")]
+            [JsonProperty("nonce")]
             public string Nonce { get; set; } 
         }
 
         private class AuthFinishData  
         {
-            [DeserializeAs(Name = "signature")]
+            [JsonProperty("signature")]
             public string Signature { get; set; } 
-            [DeserializeAs(Name = "token")]
+            [JsonProperty("token")]
             public string Token { get; set; }
 
             public byte[] ClientKeyHash { get; set; }
@@ -187,7 +184,7 @@ namespace KostalApiClient.Api
 
         private class SessionData
         {
-            [DeserializeAs(Name = "sessionId")] 
+            [JsonProperty("sessionId")] 
             public string SessionId { get; set; }
         }
     }

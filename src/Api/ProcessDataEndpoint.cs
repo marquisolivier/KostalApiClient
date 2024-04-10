@@ -123,14 +123,13 @@ namespace KostalApiClient.Api
             _client.CheckAuthentication();
 
             RestRequest request = new($"/processdata/{moduleId}/{processDatasIds.Aggregate((i, j) => i + "," + j)}") {RequestFormat = DataFormat.Json};
-            return await _client.GetAsync<List<ProcessModuleData>>(request);
+            RestResponse<List<ProcessModuleData>> response = await _client.ExecuteGetAsync<List<ProcessModuleData>>(request);
+            return response.Data;
         }
 
         /// <summary>
         /// Returns specified process-data value of a module
         /// </summary>
-        /// <param name="moduleId">Module id</param>
-        /// <param name="processDatasIds">List of process data ids</param>
         /// <returns></returns>
         public async Task<List<ProcessModuleData>> GetProcessDataIdentifiersFilter(List<ProcessDataIdentifier> filters)
         {

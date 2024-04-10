@@ -9,6 +9,6 @@ namespace KostalApiClient.Model
         public List<string> ProcessDataIds { get; set; }
 
         [JsonProperty("moduleid")]
-        public string Moduleid { get; set; }
+        public string ModuleId { get; set; }
     }
 }

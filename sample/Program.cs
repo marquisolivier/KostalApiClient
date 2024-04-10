@@ -46,7 +46,7 @@ namespace KostalApiClient.Sample
 
             // Get last events 
             Console.WriteLine("Events :");
-            List<Event> events = await session.Events.GetLastest("fr-fr", 10);
+            List<Event> events = await session.Events.GetLatest("fr-fr", 10);
             foreach (Event @event in events)
             {
                 Console.WriteLine($"> {@event.StartTime} : {@event.Category}\t{@event.Category}\t{@event.Code}\t{@event.Description}");
@@ -69,12 +69,12 @@ namespace KostalApiClient.Sample
                 await Task.Delay(1000);
             }
             List<ProcessDataIdentifier> filter = new List<ProcessDataIdentifier>();
-            filter.Add(new ProcessDataIdentifier() { Moduleid = "devices:local", ProcessDataIds = new List<string> { "Dc_P", "DigitalIn", "HomeOwn_P", "Home_P", "HomeBat_P", "HomeGrid_P", "HomePv_P", "Grid_P", "Inverter:State", "LimitEvuAbs", "EM_State" } });
+            filter.Add(new ProcessDataIdentifier() { ModuleId = "devices:local", ProcessDataIds = new List<string> { "Dc_P", "DigitalIn", "HomeOwn_P", "Home_P", "HomeBat_P", "HomeGrid_P", "HomePv_P", "Grid_P", "Inverter:State", "LimitEvuAbs", "EM_State" } });
             for (int i = 1; i <= 3; i++)
             {
                 ProcessDataIdentifier device = new ProcessDataIdentifier()
                 {
-                    Moduleid = @$"devices:local:pv{i}",
+                    ModuleId = @$"devices:local:pv{i}",
                     ProcessDataIds = new List<string> { "I", "P", "U" },
                 };
                 filter.Add(device);

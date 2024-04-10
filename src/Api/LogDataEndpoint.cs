@@ -36,7 +36,7 @@ namespace KostalApiClient.Api
 
             RestRequest request = new("/logdata/download") {RequestFormat = DataFormat.Json};
             request.AddJsonBody(new {begin = begin.ToString("yyyy-MM-dd"), end = end.ToString("yyyy-MM-dd")});
-            IRestResponse response = await _client.ExecutePostAsync(request);
+            RestResponse response = await _client.ExecutePostAsync(request);
             DataTable dataTable = ReadCsvFile(response.Content, 6);
             LogDatas datas = new();
             foreach (DataRow row in dataTable.Rows)
@@ -176,8 +176,8 @@ namespace KostalApiClient.Api
                     {
                         foreach (string column in colFields)
                         {
-                            DataColumn datecolumn = new(column) {AllowDBNull = true};
-                            csvData.Columns.Add(datecolumn);
+                            DataColumn dateColumn = new(column) {AllowDBNull = true};
+                            csvData.Columns.Add(dateColumn);
                         }
                     }
 

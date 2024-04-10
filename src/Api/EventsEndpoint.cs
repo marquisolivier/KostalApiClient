@@ -18,7 +18,7 @@ namespace KostalApiClient.Api
         /// Get the latest events
         /// </summary>
         /// <returns>List of events</returns>
-        public async Task<List<Event>> GetLastest()
+        public async Task<List<Event>> GetLatest()
         {
             _client.CheckAuthentication();
             RestRequest request = new("/events/latest") {RequestFormat = DataFormat.Json};
@@ -29,12 +29,12 @@ namespace KostalApiClient.Api
         /// Get the latest events with localized descriptions
         /// </summary>
         /// <returns>List of events</returns>
-        public async Task<List<Event>> GetLastest(string language, int maxEvents)
+        public async Task<List<Event>> GetLatest(string language, int maxEvents)
         {
             _client.CheckAuthentication();
             RestRequest request = new("/events/latest") {RequestFormat = DataFormat.Json};
             request.AddJsonBody(new {language, max = maxEvents});
-            IRestResponse<List<Event>> response = await _client.ExecutePostAsync<List<Event>>(request);
+            RestResponse<List<Event>> response = await _client.ExecutePostAsync<List<Event>>(request);
             return response.Data;
         }   
     }
